@@ -1,22 +1,36 @@
 package Good_Code;
 
 public class TextEditor {
-    private String text;
-    public void setText(String text) {
-        this.text = text;
+    private String currentText = "";
+    private final MementoManager mementoManager = new MementoManager();
+
+    public void setCurrentText(String text) {
+        mementoManager.pushToUndoStack(this.currentText);
+        mementoManager.clearRedoStack();
+        this.currentText = text;
     }
 
-    public String getText() {
-        return text;
+    public String getCurrentText() {
+        return this.currentText;
     }
 
-    // Creates a memento (snapshot) of the current state
-    public Memento save() {
-        return new Memento(text);
+    public void undo() {
+        if (!mementoManager.isUndoStackEmpty()) {
+            mementoManager.pushToRedoStack(this.currentText);
+            String previousText = mementoManager.popUndoStack().getText();
+            this.currentText = previousText;
+        } else {
+            System.out.println("Nothing to undo.");
+        }
     }
 
-    // Restores the state from the given memento
-    public void restore(Memento memento) {
-        this.text = memento.getText();
+    public void redo() {
+        if (!mementoManager.isRedoStackEmpty()) {
+            mementoManager.pushToUndoStack(this.currentText);
+            String text = mementoManager.popRedoStack().getText();
+            this.currentText = text;
+        } else {
+            System.out.println("Nothing to redo.");
+        }
     }
 }
